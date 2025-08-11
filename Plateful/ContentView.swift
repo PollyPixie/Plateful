@@ -9,13 +9,26 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            MealsView()
+                .tabItem {
+                    Image(systemName: "fork.knife")
+                    Text("Meals")
+                }
+
+            BasketView()
+                .tabItem {
+                    Image(systemName: "cart")
+                    Text("Basket")
+                }
+
+            CalendarView()
+                .tabItem {
+                    Image(systemName: "calendar")
+                    Text("Calendar")
+                }
         }
-        .padding()
+        .tint(.brandOlive) // цвет активной вкладки и акцентов
     }
 }
 
