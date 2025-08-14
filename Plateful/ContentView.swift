@@ -5,6 +5,7 @@
 //  Created by Полина Соколова on 11.08.25.
 //
 
+// ContentView.swift
 import SwiftUI
 
 struct ContentView: View {
@@ -28,7 +29,7 @@ struct ContentView: View {
                     Text("Calendar")
                 }
         }
-        .tint(.brandOlive) // цвет активной вкладки и акцентов
+        .tint(.brandOlive) // цвет активной вкладки и системных акцентов
     }
 }
 

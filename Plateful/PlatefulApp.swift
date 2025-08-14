@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct PlatefulApp: App {
+    // Один «живой» экземпляр корзины на всё приложение
+    @StateObject private var basket = BasketStore()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(basket) // теперь любая вью ниже может читать/менять корзину
         }
     }
 }
+

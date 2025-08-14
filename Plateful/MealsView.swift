@@ -8,12 +8,45 @@
 import SwiftUI
 
 struct MealsView: View {
+    private let weekStore = WeekStore()
+
     var body: some View {
         NavigationStack {
-            Text("Meals")
-                .padding()
-                .navigationTitle("Meals")
+            VStack(spacing: 0) {
+                // Заголовок недели
+                Text(weekStore.weekTitle())
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
+
+                Divider()
+
+                // Дни текущей недели
+                List(weekStore.daysOfCurrentWeek(), id: \.self) { day in
+                    NavigationLink {
+                        DayDetailView(date: day)  // <-- сюда уходим
+                    } label: {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(day.dayTitle())
+                                .font(.headline)
+                            Text("Завтрак • Обед • Ужин")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .listStyle(.insetGrouped)
+            }
+            .navigationTitle("Meals")
         }
     }
 }
+
+
+#Preview {
+    MealsView()
+}
+
 
