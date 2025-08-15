@@ -19,9 +19,12 @@ struct DayDetailView: View {
     var body: some View {
         List {
             Section("Меню (демо)") {
-                Text("Завтрак: овсянка с бананом")
-                Text("Обед: суп + тост")
-                Text("Ужин: паста с томатами")
+                let meals = MealData.meals(for: date)
+                if meals.count >= 3 {
+                    Text("Завтрак: \(meals[0])")
+                    Text("Обед: \(meals[1])")
+                    Text("Ужин: \(meals[2])")
+                }
             }
 
             Section("Ингредиенты") {

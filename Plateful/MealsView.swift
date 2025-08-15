@@ -27,10 +27,14 @@ struct MealsView: View {
                     NavigationLink {
                         DayDetailView(date: day)  // <-- сюда уходим
                     } label: {
+                        let dishes = MealData.meals(for: day)              // <-- новое
                         VStack(alignment: .leading, spacing: 6) {
                             Text(day.dayTitle())
                                 .font(.headline)
-                            Text("Завтрак • Обед • Ужин")
+
+                            Text(dishes.isEmpty
+                                 ? "Завтрак • Обед • Ужин"
+                                 : dishes.joined(separator: " • "))        // <-- новое
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
