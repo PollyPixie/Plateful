@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct MealsView: View {
+    @EnvironmentObject var mealStore: MealStore        // ← добавили
     private let weekStore = WeekStore()
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Заголовок недели
                 Text(weekStore.weekTitle())
                     .font(.headline)
                     .frame(maxWidth: .infinity)
@@ -22,19 +22,19 @@ struct MealsView: View {
 
                 Divider()
 
-                // Дни текущей недели
                 List(weekStore.daysOfCurrentWeek(), id: \.self) { day in
                     NavigationLink {
-                        DayDetailView(date: day)  // <-- сюда уходим
+                        DayDetailView(date: day)
                     } label: {
-                        let dishes = MealData.meals(for: day)              // <-- новое
+                        let plan = mealStore.plan(for: day)              // ← из MealStore
+                        let dishes = [plan.breakfast, plan.lunch, plan.dinner]
+                            .filter { !$0.isEmpty }
+                            .joined(separator: " • ")
+
                         VStack(alignment: .leading, spacing: 6) {
                             Text(day.dayTitle())
                                 .font(.headline)
-
-                            Text(dishes.isEmpty
-                                 ? "Завтрак • Обед • Ужин"
-                                 : dishes.joined(separator: " • "))        // <-- новое
+                            Text(dishes.isEmpty ? "Завтрак • Обед • Ужин" : dishes)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -47,6 +47,7 @@ struct MealsView: View {
         }
     }
 }
+
 
 
 #Preview {

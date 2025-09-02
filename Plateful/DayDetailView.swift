@@ -10,34 +10,48 @@ import SwiftUI
 struct DayDetailView: View {
     let date: Date
     @EnvironmentObject var basket: BasketStore
+    @EnvironmentObject var mealStore: MealStore          // ← добавили
 
-    // MARK: - State
-    @State private var available: [String: Bool] = [:]     // имя → есть/нет (только для UI)
-    @State private var rowToast: [String: Bool] = [:]       // имя → виден ли тост для этой строки
+    // MARK: - State (UI)
+    @State private var available: [String: Bool] = [:]
+    @State private var rowToast: [String: Bool] = [:]
+    @State private var newIngredient = ""                // ← поле ввода нового ингредиента
 
-    // MARK: - Data
-    var ingredients: [String] { MealData.ingredients(for: date) }
+    // Локальная копия плана для биндингов текстовых полей
+    @State private var plan: DayPlan = .init(breakfast: "", lunch: "", dinner: "", ingredients: [])
 
     // MARK: - Body
     var body: some View {
         List {
-            // Меню
-            Section("Меню (демо)") {
-                let meals = MealData.meals(for: date)
-                if meals.count >= 3 {
-                    Text("Завтрак: \(meals[0])")
-                    Text("Обед: \(meals[1])")
-                    Text("Ужин: \(meals[2])")
-                }
+            // Меню — редактируем
+            Section("Меню") {
+                TextField("Завтрак", text: $plan.breakfast)
+                    .textInputAutocapitalization(.sentences)
+                TextField("Обед",     text: $plan.lunch)
+                    .textInputAutocapitalization(.sentences)
+                TextField("Ужин",     text: $plan.dinner)
+                    .textInputAutocapitalization(.sentences)
             }
 
-            // Ингредиенты
+            // Ингредиенты — добавление
             Section("ИНГРЕДИЕНТЫ") {
-                ForEach(ingredients, id: \.self) { name in
-                    let isAvailable = available[name] ?? false
+                HStack(spacing: 8) {
+                    TextField("Новый ингредиент", text: $newIngredient)
+                        .textFieldStyle(.roundedBorder)
+                    // Квадратная кнопка добавления
+                    SquareIconButton(systemName: "plus") {
+                        mealStore.addIngredient(newIngredient, to: date)
+                        newIngredient = ""
+                        // Обновим локальное состояние, чтобы список тут же обновился
+                        plan = mealStore.plan(for: date)
+                    }
+                    .disabled(newIngredient.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
 
+                // Ингредиенты — список с галочками и удалением свайпом
+                ForEach(plan.ingredients, id: \.self) { name in
+                    let isAvailable = available[name] ?? false
                     HStack(spacing: 12) {
-                        // Галочка «есть/нет»
                         Button {
                             available[name] = !(available[name] ?? false)
                         } label: {
@@ -47,7 +61,6 @@ struct DayDetailView: View {
                         }
                         .buttonStyle(.plain)
 
-                        // Название
                         Text(name)
                             .lineLimit(1)
                             .strikethrough(isAvailable, color: .gray)
@@ -55,68 +68,63 @@ struct DayDetailView: View {
 
                         Spacer(minLength: 12)
 
-                        // Кнопка корзины
                         SquareIconButton(systemName: "cart.badge.plus") {
                             basket.add(name)
                             showRowToast(for: name)
                         }
                     }
                     .padding(.vertical, 4)
-
-                    // Тост для этой строки (справа, без сдвига layout'а)
                     .overlay(alignment: .trailing) {
                         if rowToast[name] == true {
                             Text("Добавлено")
-                                .font(.callout).bold()                 // крупнее и читаемее
+                                .font(.callout).bold()
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
                                 .background(Capsule().fill(Color.brandOlive))
                                 .foregroundColor(.brandOnOlive)
-                                .padding(.trailing, 44)                // держим место для кнопки корзины
-                                .offset(y: -2)                         // лёгкая вертикальная правка (по вкусу)
-                                .transition(.opacity)                  // просто проявление/затухание
+                                .padding(.trailing, 44)
+                                .transition(.opacity)
                                 .opacity(1)
                                 .allowsHitTesting(false)
                                 .zIndex(1)
                         }
                     }
-
+                }
+                .onDelete { offsets in                      // ← удаление ингредиентов
+                    mealStore.removeIngredients(at: offsets, for: date)
+                    plan = mealStore.plan(for: date)
                 }
             }
         }
         .navigationTitle(date.dayTitle())
+        // Подтягиваем план при появлении и при возврате на экран
+        .onAppear { plan = mealStore.plan(for: date) }
+        // Любое изменение полей — сразу сохраняем
+        .onChange(of: plan, initial: false) {
+            mealStore.update(plan, for: date)
+        }
     }
 
-    // MARK: - Toast Logic
+    // MARK: - Toast Logic (как у тебя)
     private func showRowToast(for name: String) {
-        withAnimation(.easeInOut(duration: 0.15)) {
-            rowToast[name] = true
-        }
+        withAnimation(.easeInOut(duration: 0.15)) { rowToast[name] = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                rowToast[name] = false
-            }
+            withAnimation(.easeInOut(duration: 0.2)) { rowToast[name] = false }
         }
     }
 
-    // MARK: - SquareIconButton
+    // MARK: - Кнопка (твоя, без изменений)
     private struct SquareIconButton: View {
         let systemName: String
         let action: () -> Void
-
         @State private var pressed = false
-        @State private var pulse = false   // всплеск под иконкой
-        @State private var bounce = false  // подпрыгивание символа
-
+        @State private var pulse = false
+        @State private var bounce = false
         var body: some View {
             Button {
                 action()
-
-                // «смачное» нажатие
                 withAnimation(.spring(response: 0.12, dampingFraction: 0.55)) {
-                    pressed = true
-                    bounce.toggle()
-                    pulse.toggle()
+                    pressed = true; bounce.toggle(); pulse.toggle()
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
                     withAnimation(.spring(response: 0.22, dampingFraction: 0.75)) {
@@ -127,10 +135,10 @@ struct DayDetailView: View {
                 Image(systemName: systemName)
                     .imageScale(.medium)
                     .frame(width: 34, height: 34)
-                    .symbolEffect(.bounce, value: bounce) // iOS 17+
+                    .symbolEffect(.bounce, value: bounce)
                     .background(
                         Circle()
-                            .fill(Color.brandOlive.opacity(pulse ? 0.0 : 0.35)) // затухающий всплеск
+                            .fill(Color.brandOlive.opacity(pulse ? 0.0 : 0.35))
                             .scaleEffect(pulse ? 1.6 : 0.01)
                             .animation(.easeOut(duration: 0.28), value: pulse)
                     )
@@ -143,5 +151,6 @@ struct DayDetailView: View {
         }
     }
 }
+
 
 
