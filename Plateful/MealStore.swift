@@ -28,17 +28,17 @@ final class MealStore: ObservableObject {
     func plan(for date: Date) -> DayPlan {
         let k = Self.key(for: date)
         if let p = plans[k] { return p }
-        // Фолбэк из демо, чтобы экран не пустел
+
+        // Seed лишь для отображения, без записи в @Published:
         let meals = MealData.meals(for: date)
-        let p = DayPlan(
+        return DayPlan(
             breakfast: meals.count > 0 ? meals[0] : "",
             lunch:     meals.count > 1 ? meals[1] : "",
             dinner:    meals.count > 2 ? meals[2] : "",
             ingredients: MealData.ingredients(for: date)
         )
-        plans[k] = p
-        return p
     }
+
 
     /// Полностью заменить план на дату
     func update(_ plan: DayPlan, for date: Date) {
