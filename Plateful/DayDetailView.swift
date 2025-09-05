@@ -10,12 +10,11 @@ import SwiftUI
 struct DayDetailView: View {
     let date: Date
     @EnvironmentObject var basket: BasketStore
-    @EnvironmentObject var mealStore: MealStore          // ← добавили
+    @EnvironmentObject var mealStore: MealStore
 
     // MARK: - State (UI)
-    @State private var available: [String: Bool] = [:]
     @State private var rowToast: [String: Bool] = [:]
-    @State private var newIngredient = ""                // ← поле ввода нового ингредиента
+    @State private var newIngredient = ""
 
     // Локальная копия плана для биндингов текстовых полей
     @State private var plan: DayPlan = .init(breakfast: "", lunch: "", dinner: "", ingredients: [])
@@ -50,16 +49,19 @@ struct DayDetailView: View {
 
                 // Ингредиенты — список с галочками и удалением свайпом
                 ForEach(plan.ingredients, id: \.self) { name in
-                    let isAvailable = available[name] ?? false
+                    let isAvailable = mealStore.isHave(name, on: date)
+
                     HStack(spacing: 12) {
+                        // Галочка «есть/нет» — теперь из стора
                         Button {
-                            available[name] = !(available[name] ?? false)
+                            mealStore.toggleHave(name, on: date)
                         } label: {
                             Image(systemName: isAvailable ? "checkmark.circle.fill" : "circle")
                                 .imageScale(.large)
                                 .foregroundStyle(isAvailable ? Color.brandOlive : .secondary)
                         }
                         .buttonStyle(.plain)
+                       
 
                         Text(name)
                             .lineLimit(1)
