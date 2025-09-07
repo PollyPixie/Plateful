@@ -7,7 +7,6 @@
 
 import Foundation
 
-/// Одна позиция корзины
 struct BasketItem: Identifiable, Codable, Hashable {
     let id: UUID
     var name: String

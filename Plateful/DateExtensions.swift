@@ -5,7 +5,6 @@
 //  Created by Полина Соколова on 11.08.25.
 //
 
-// DateExtensions.swift
 import Foundation
 
 extension Calendar {
