@@ -43,7 +43,7 @@ struct MealsView: View {
                 }
                 .listStyle(.insetGrouped)
             }
-            .navigationTitle("Meals")
+            .navigationTitle("Рацион")
         }
     }
 }

@@ -25,7 +25,7 @@ final class BasketStore: ObservableObject {
         didSet { save() } // при любом изменении сразу сохраняем
     }
 
-    private let storageKey = "basket.items.v1"
+    private let storageKey = "basket.items.v2"
 
     init() { load() }
 
@@ -35,6 +35,7 @@ final class BasketStore: ObservableObject {
         guard !key.isEmpty else { return }
         if let i = items.firstIndex(where: { $0.name.lowercased() == key }) {
             items[i].quantity += 1
+            save() // явное сохранение
         } else {
             items.append(BasketItem(name: name))
         }

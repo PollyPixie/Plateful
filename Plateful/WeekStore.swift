@@ -40,14 +40,14 @@ final class WeekStore: ObservableObject {
         let last  = Calendar.app.date(byAdding: .day, value: 6, to: first) ?? first
 
         let dfDay = DateFormatter()
-        dfDay.locale = Locale(identifier: "en_US_POSIX")
+        dfDay.locale = Locale(identifier: "ru_RU")
         dfDay.timeZone = Calendar.app.timeZone
         dfDay.dateFormat = "dd"
 
         let dfMonth = DateFormatter()
-        dfMonth.locale = Locale(identifier: "en_US_POSIX")
+        dfMonth.locale = Locale(identifier: "ru_RU")
         dfMonth.timeZone = Calendar.app.timeZone
-        dfMonth.dateFormat = "MMM yyyy"
+        dfMonth.dateFormat = "LLL yyyy"
 
         return "\(dfDay.string(from: first))–\(dfDay.string(from: last)) \(dfMonth.string(from: last))"
     }

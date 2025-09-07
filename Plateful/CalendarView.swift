@@ -12,11 +12,21 @@ struct CalendarView: View {
     @State private var goToDetail = false
     private let weekStore = WeekStore()
 
+    // Диапазон дат: от якорного понедельника на 1 год
     private var dateRange: ClosedRange<Date> {
         let start = weekStore.anchorMonday
         let end = Calendar.app.date(byAdding: .year, value: 1, to: start) ?? start
         return start...end
     }
+
+    // Русская локаль и календарь (понедельник — первый день)
+    private let ruLocale = Locale(identifier: "ru_RU")
+    private var ruCalendar: Calendar = {
+        var c = Calendar(identifier: .gregorian)
+        c.locale = Locale(identifier: "ru_RU")
+        c.firstWeekday = 2
+        return c
+    }()
 
     var body: some View {
         NavigationStack {
@@ -29,20 +39,22 @@ struct CalendarView: View {
                 )
                 .datePickerStyle(.graphical)
                 .tint(.brandOlive)
+                .environment(\.locale, ruLocale)
+                .environment(\.calendar, ruCalendar)
                 .onChange(of: selected, initial: false) {
                     goToDetail = true
                 }
 
-                Text("Start: \(weekStore.anchorMonday.dayTitle())")
+                Text("Начало: \(weekStore.anchorMonday.dayTitle())")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
             .padding()
-            .navigationTitle("Calendar")
-            // ✅ Новый способ навигации (iOS 16+)
+            .navigationTitle("Календарь")
             .navigationDestination(isPresented: $goToDetail) {
                 DayDetailView(date: selected)
             }
         }
     }
 }
+

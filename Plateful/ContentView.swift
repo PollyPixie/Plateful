@@ -13,19 +13,19 @@ struct ContentView: View {
             MealsView()
                 .tabItem {
                     Image(systemName: "fork.knife")
-                    Text("Meals")
+                    Text("Рацион")
                 }
 
             BasketView()
                 .tabItem {
                     Image(systemName: "cart")
-                    Text("Basket")
+                    Text("Корзина")
                 }
 
             CalendarView()
                 .tabItem {
                     Image(systemName: "calendar")
-                    Text("Calendar")
+                    Text("Календарь")
                 }
         }
         .tint(.brandOlive) // цвет активной вкладки и системных акцентов

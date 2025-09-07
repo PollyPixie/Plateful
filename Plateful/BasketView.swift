@@ -58,10 +58,10 @@ struct BasketView: View {
                     .listStyle(.insetGrouped)
                 }
             }
-            .navigationTitle("Basket")
+            .navigationTitle("Корзина")
             .toolbar {
                 if !basket.items.isEmpty {
-                    Button("Clear", role: .destructive, action: basket.clear)
+                    Button("Очистить", role: .destructive, action: basket.clear)
                 }
             }
         }
