@@ -7,7 +7,6 @@
 
 import Foundation
 
-// Что храним для конкретного дня
 struct DayPlan: Codable, Hashable {
     var breakfast: String
     var lunch: String
@@ -28,8 +27,6 @@ final class MealStore: ObservableObject {
     private let storageKey = "meal.plans.v1"
 
     // MARK: - Публичное API
-
-    /// Получить план на дату (если нет — вернуть пустой план БЕЗ автосоздания записи)
     func plan(for date: Date) -> DayPlan {
         let k = Self.key(for: date)
         if let p = plans[k] { return p }
@@ -136,5 +133,16 @@ final class MealStore: ObservableObject {
         }
         
         loadAvailability()
+    }
+    
+    // Снимок текущих данных для бэкапа
+    func snapshot() -> (plans: [String: DayPlan], availability: [String: Set<String>]) {
+        (plans, availability)
+    }
+
+    // Полная замена данных (для импорта)
+    func replace(plans newPlans: [String: DayPlan], availability newAvailability: [String: Set<String>]) {
+        self.plans = newPlans
+        self.availability = newAvailability
     }
 }

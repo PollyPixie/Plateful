@@ -41,8 +41,18 @@ final class BasketStore: ObservableObject {
         }
     }
 
-    func remove(at offsets: IndexSet) { items.remove(atOffsets: offsets) }
-    func clear() { items.removeAll() }
+    func remove(at offsets: IndexSet) {
+        items.remove(atOffsets: offsets)
+    }
+    
+    func clear() {
+        items.removeAll()
+    }
+    
+    // Полная замена (для импорта)
+    func replace(items newItems: [BasketItem]) {
+        self.items = newItems
+    }
 
     // MARK: - Persistence (UserDefaults + JSON)
     private func save() {

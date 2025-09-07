@@ -57,6 +57,18 @@ final class WeekStore: ObservableObject {
         anchorMonday = monday
         UserDefaults.standard.set(monday.timeIntervalSince1970, forKey: anchorKey)
     }
+    
+    // Для экспорта: timestamp якоря
+    func anchorTimestamp() -> TimeInterval {
+        anchorMonday.timeIntervalSince1970
+    }
+
+    // Для импорта: выставить якорь из timestamp (с нормализацией к понедельнику)
+    func setAnchor(timestamp: TimeInterval) {
+        let monday = Date(timeIntervalSince1970: timestamp).startOfWeekMonday()
+        anchorMonday = monday
+        UserDefaults.standard.set(monday.timeIntervalSince1970, forKey: anchorKey)
+    }
 }
 
 

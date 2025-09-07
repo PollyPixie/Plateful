@@ -8,27 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var mealStore: MealStore
+    @EnvironmentObject var basket: BasketStore
+    @Environment(\.scenePhase) private var scenePhase
+    private let weekStore = WeekStore()
+
     var body: some View {
         TabView {
             MealsView()
-                .tabItem {
-                    Image(systemName: "fork.knife")
-                    Text("Рацион")
-                }
-
+                .tabItem { Image(systemName: "fork.knife"); Text("Рацион") }
             BasketView()
-                .tabItem {
-                    Image(systemName: "cart")
-                    Text("Корзина")
-                }
-
+                .tabItem { Image(systemName: "cart"); Text("Корзина") }
             CalendarView()
-                .tabItem {
-                    Image(systemName: "calendar")
-                    Text("Календарь")
-                }
+                .tabItem { Image(systemName: "calendar"); Text("Календарь") }
         }
-        .tint(.brandOlive) // цвет активной вкладки и системных акцентов
+        .tint(.brandOlive)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                let manager = BackupManager(meals: mealStore, basket: basket, week: weekStore)
+                _ = try? manager.exportToLatest()
+            }
+        }
     }
 }
 
