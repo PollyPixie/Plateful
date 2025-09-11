@@ -25,6 +25,7 @@ struct CalendarView: View {
         var c = Calendar(identifier: .gregorian)
         c.locale = Locale(identifier: "ru_RU")
         c.firstWeekday = 2
+        c.timeZone = Calendar.app.timeZone
         return c
     }()
 

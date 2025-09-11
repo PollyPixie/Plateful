@@ -10,9 +10,9 @@ import Foundation
 extension Calendar {
     static let app: Calendar = {
         var cal = Calendar(identifier: .gregorian)
-        cal.firstWeekday = 2               // 2 = Monday
+        cal.firstWeekday = 2
         cal.locale = Locale(identifier: "en_US_POSIX")
-        cal.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        cal.timeZone = TimeZone(identifier: "Europe/Belgrade")! // ← было GMT
         return cal
     }()
 }
