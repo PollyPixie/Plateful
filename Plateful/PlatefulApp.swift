@@ -12,6 +12,7 @@ struct PlatefulApp: App {
     // Один «живой» экземпляр корзины на всё приложение
     @StateObject private var basket = BasketStore()
     @StateObject private var meals = MealStore()
+    @StateObject private var week = WeekStore()
 
     init() {
         let appearance = UINavigationBarAppearance()
@@ -45,6 +46,7 @@ struct PlatefulApp: App {
             ContentView()
                 .environmentObject(basket)
                 .environmentObject(meals)
+                .environmentObject(week)
         }
     }
 }

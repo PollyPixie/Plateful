@@ -10,7 +10,7 @@ import SwiftUI
 struct MealsView: View {
     @EnvironmentObject var mealStore: MealStore
     @EnvironmentObject var basket: BasketStore
-    private let weekStore = WeekStore()
+    @EnvironmentObject var weekStore: WeekStore
 
     // алерты об успехе/ошибке
     @State private var showAlert = false
@@ -93,6 +93,7 @@ struct MealsView: View {
     MealsView()
         .environmentObject(MealStore())
         .environmentObject(BasketStore())
+        .environmentObject(WeekStore()) 
 }
 
 

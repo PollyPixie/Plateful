@@ -10,7 +10,7 @@ import SwiftUI
 struct CalendarView: View {
     @State private var selected = Date()
     @State private var goToDetail = false
-    private let weekStore = WeekStore()
+    @EnvironmentObject var weekStore: WeekStore
 
     // Диапазон дат: от якорного понедельника на 1 год
     private var dateRange: ClosedRange<Date> {

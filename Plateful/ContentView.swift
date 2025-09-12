@@ -11,7 +11,7 @@ struct ContentView: View {
     @EnvironmentObject var mealStore: MealStore
     @EnvironmentObject var basket: BasketStore
     @Environment(\.scenePhase) private var scenePhase
-    private let weekStore = WeekStore()
+    @EnvironmentObject var weekStore: WeekStore
 
     var body: some View {
         TabView {
