@@ -69,6 +69,13 @@ final class WeekStore: ObservableObject {
         anchorMonday = monday
         UserDefaults.standard.set(monday.timeIntervalSince1970, forKey: anchorKey)
     }
+    
+    func ensureCurrentWeek() {
+        let todayMonday = Date().startOfWeekMonday()
+        if anchorMonday != todayMonday {
+            setAnchor(to: Date())
+        }
+    }
 }
 
 
