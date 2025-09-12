@@ -11,29 +11,58 @@ struct BasketView: View {
     @EnvironmentObject var basket: BasketStore
     @State private var newItem = ""
 
-    // Собственная «ручка» редактирования
-    @State private var isEditing = false
+    // Реальный edit-mode, который передаём в окружение как binding
+    @State private var editMode: EditMode = .inactive
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
-                // ... твой TextField и остальное
+                // Ввод новой позиции вручную
+                HStack(spacing: 8) {
+                    TextField("Новый продукт", text: $newItem)
+                        .textFieldStyle(.roundedBorder)
+                    Button {
+                        basket.add(newItem)
+                        newItem = ""
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .imageScale(.large)
+                    }
+                    .disabled(newItem.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+                .padding(.horizontal)
 
+                // Список корзины
                 if basket.items.isEmpty {
-                    // ... пустое состояние
+                    VStack(spacing: 8) {
+                        Image(systemName: "cart")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.secondary)
+                        Text("Пока пусто")
+                            .foregroundStyle(.secondary)
+                        Text("Добавляй вручную или из меню дня")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 40)
                 } else {
                     List {
                         ForEach(basket.items) { item in
                             HStack {
                                 Text(item.name)
+
                                 Spacer()
-                                Text("×\(item.quantity)")
-                                    .monospacedDigit()
-                                    .foregroundStyle(.secondary)
+
+                                // Освобождаем место под «гребёнку» перетаскивания (она справа)
+                                if editMode != .active {
+                                    Text("×\(item.quantity)")
+                                        .monospacedDigit()
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                         .onDelete(perform: basket.remove)
-                        .onMove(perform: basket.move)
+                        .onMove(perform: basket.move) // перетаскивание строк в edit-режиме
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -42,19 +71,21 @@ struct BasketView: View {
             .toolbar {
                 if !basket.items.isEmpty {
                     ToolbarItemGroup(placement: .topBarTrailing) {
-                        // Кнопка на русском
-                        Button(isEditing ? "Готово" : "Изменить") {
-                            withAnimation { isEditing.toggle() }
+                        Button(editMode == .active ? "Готово" : "Изменить") {
+                            withAnimation {
+                                editMode = (editMode == .active) ? .inactive : .active
+                            }
                         }
                         Button("Очистить", role: .destructive, action: basket.clear)
                     }
                 }
             }
         }
-        // ВАЖНО: прокинуть состояние редактирования в окружение списка
-        .environment(\.editMode, .constant(isEditing ? .active : .inactive))
+        // Ключ: передаём живой binding editMode, чтобы List включал режим редактирования
+        .environment(\.editMode, $editMode)
     }
 }
+
 
 
 
