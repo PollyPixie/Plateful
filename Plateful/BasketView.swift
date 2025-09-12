@@ -11,37 +11,16 @@ struct BasketView: View {
     @EnvironmentObject var basket: BasketStore
     @State private var newItem = ""
 
+    // Собственная «ручка» редактирования
+    @State private var isEditing = false
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
-                // Ввод новой позиции вручную
-                HStack(spacing: 8) {
-                    TextField("Новый ингредиент", text: $newItem)
-                        .textFieldStyle(.roundedBorder)
-                    Button {
-                        basket.add(newItem)
-                        newItem = ""
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .imageScale(.large)
-                    }
-                    .disabled(newItem.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                }
-                .padding(.horizontal)
+                // ... твой TextField и остальное
 
-                // Список корзины
                 if basket.items.isEmpty {
-                    VStack(spacing: 8) {
-                        Image(systemName: "cart")
-                            .font(.system(size: 40))
-                            .foregroundStyle(.secondary)
-                        Text("Пока пусто")
-                            .foregroundStyle(.secondary)
-                        Text("Добавляй вручную или из меню дня")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.top, 40)
+                    // ... пустое состояние
                 } else {
                     List {
                         ForEach(basket.items) { item in
@@ -54,6 +33,7 @@ struct BasketView: View {
                             }
                         }
                         .onDelete(perform: basket.remove)
+                        .onMove(perform: basket.move)
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -61,11 +41,20 @@ struct BasketView: View {
             .navigationTitle("Корзина")
             .toolbar {
                 if !basket.items.isEmpty {
-                    Button("Очистить", role: .destructive, action: basket.clear)
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        // Кнопка на русском
+                        Button(isEditing ? "Готово" : "Изменить") {
+                            withAnimation { isEditing.toggle() }
+                        }
+                        Button("Очистить", role: .destructive, action: basket.clear)
+                    }
                 }
             }
         }
+        // ВАЖНО: прокинуть состояние редактирования в окружение списка
+        .environment(\.editMode, .constant(isEditing ? .active : .inactive))
     }
 }
+
 
 

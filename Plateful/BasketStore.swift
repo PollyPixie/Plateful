@@ -53,6 +53,11 @@ final class BasketStore: ObservableObject {
     func replace(items newItems: [BasketItem]) {
         self.items = newItems
     }
+    
+    // Перестановка элементов для List.onMove
+    func move(from source: IndexSet, to destination: Int) {
+        items.move(fromOffsets: source, toOffset: destination)
+    }
 
     // MARK: - Persistence (UserDefaults + JSON)
     private func save() {
