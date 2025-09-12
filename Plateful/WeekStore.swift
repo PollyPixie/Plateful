@@ -76,9 +76,35 @@ final class WeekStore: ObservableObject {
             setAnchor(to: Date())
         }
     }
+    
+    // MARK: - Three-pane weeks (prev/current/next)
+    /// Понедельник недели относительно якоря: -1 = предыдущая, 0 = текущая, +1 = следующая
+    func monday(offset: Int) -> Date {
+        precondition((-1...1).contains(offset), "offset must be -1, 0, or +1")
+        return Calendar.app.date(byAdding: .day, value: offset * 7, to: anchorMonday) ?? anchorMonday
+    }
+
+    /// Дни недели для указанного смещения (7 дат, Пн—Вс)
+    func daysOfWeek(offset: Int) -> [Date] {
+        let start = monday(offset: offset)
+        return (0..<7).compactMap { Calendar.app.date(byAdding: .day, value: $0, to: start) }
+    }
+
+    /// Заголовок «08–14 сент 2025» для недели со смещением
+    func weekTitle(offset: Int) -> String {
+        let first = monday(offset: offset)
+        let last  = Calendar.app.date(byAdding: .day, value: 6, to: first) ?? first
+
+        let dfDay = DateFormatter()
+        dfDay.locale = Locale(identifier: "ru_RU")
+        dfDay.timeZone = Calendar.app.timeZone
+        dfDay.dateFormat = "dd"
+
+        let dfMonth = DateFormatter()
+        dfMonth.locale = Locale(identifier: "ru_RU")
+        dfMonth.timeZone = Calendar.app.timeZone
+        dfMonth.dateFormat = "LLL yyyy"
+
+        return "\(dfDay.string(from: first))–\(dfDay.string(from: last)) \(dfMonth.string(from: last))"
+    }
 }
-
-
-
-
-

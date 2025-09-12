@@ -16,18 +16,40 @@ struct MealsView: View {
     @State private var showAlert = false
     @State private var alertText = ""
 
+    // -1 ← предыдущая | 0 текущая | +1 следующая
+    @State private var weekOffset: Int = 0
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Text(weekStore.weekTitle())
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
+
+                // Заголовок недели со стрелками
+                HStack(spacing: 12) {
+                    Button {
+                        if weekOffset > -1 { weekOffset -= 1 }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                    .disabled(weekOffset <= -1)
+
+                    Text(weekStore.weekTitle(offset: weekOffset))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+
+                    Button {
+                        if weekOffset < 1 { weekOffset += 1 }
+                    } label: {
+                        Image(systemName: "chevron.right")
+                    }
+                    .disabled(weekOffset >= 1)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal)
 
                 Divider()
 
-                List(weekStore.daysOfCurrentWeek(), id: \.self) { day in
+                // Список дней выбранной недели
+                List(weekStore.daysOfWeek(offset: weekOffset), id: \.self) { day in
                     NavigationLink {
                         DayDetailView(date: day)
                     } label: {
@@ -85,6 +107,11 @@ struct MealsView: View {
             .alert(alertText, isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
             }
+            // Всегда возвращаемся к текущей неделе
+            .onAppear { weekOffset = 0 }
+            .onChange(of: weekStore.anchorMonday) { _, _ in
+                weekOffset = 0
+            }
         }
     }
 }
@@ -93,8 +120,9 @@ struct MealsView: View {
     MealsView()
         .environmentObject(MealStore())
         .environmentObject(BasketStore())
-        .environmentObject(WeekStore()) 
+        .environmentObject(WeekStore())
 }
+
 
 
 
